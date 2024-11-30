@@ -10,19 +10,37 @@ import { useForm } from "react-hook-form";
 import { z } from "zod"
 
 const requiredFieldMessage = 'Esse campo é obrigatorio!'
+const minLenghtMessage = (lenght: number) => `Esse campo precisa ter no minimo ${lenght} caracteres!`;
+
+/** @todo fix ponctuation */
 
 const formSchema = z.object({
-  username: z.string({message: requiredFieldMessage}).min(4, "O nome precisa ter no minimo 4 caracteres!").max(50),
-  email: z.string({message: requiredFieldMessage}).email(),
-  password: z.string({message: requiredFieldMessage}).min(6).max(20),
-  confirmPassword: z.string({message: requiredFieldMessage}).min(2).max(20),
-})
+  username: z.string({message: requiredFieldMessage}).min(4, minLenghtMessage(4)).max(40),
+  email: z.string({message: requiredFieldMessage}).email({message:"Esse campo precisa ser um email valido!"}),
+  password: z.string({message: requiredFieldMessage}).min(6, minLenghtMessage(6)).regex(
+    /^(?=(.*[A-Z]){1,}).{1,}$/g, 
+    "Senha precisa de no mínimo 1 caractere maiusculo!"
+  ).regex(
+    /^(?=(.*[!@#$%^&*()\-__+.]){1,}).{1,}$/g,
+    "Senha precisa de no mínimo 1 caractere especial!"
+  ).max(20),
+  confirmPassword: z.string({message: requiredFieldMessage}).max(20),
+}).refine((data) => data.password === data.confirmPassword && data.confirmPassword.length !== 0, {
+    message: "As senhas não são iguais!",
+    path: ["confirmPassword"], // path of error
+  });
 
 type FormFields = z.infer<typeof formSchema>
 
 export default function Register() {
   const form = useForm<FormFields>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: ""
+    }
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -46,7 +64,7 @@ export default function Register() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input placeholder="Nome" {...field}></Input>
+                      <Input placeholder="Nome" maxLength={40} {...field}></Input>
                     </FormControl>
                     {form.formState.errors.username && <FormMessage>{form.formState.errors.username.message}</FormMessage>}
 
@@ -71,7 +89,7 @@ export default function Register() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input type="password" {...field} placeholder="Senha"></Input>
+                      <Input type="password" {...field} maxLength={20} placeholder="Senha"></Input>
                     </FormControl>
                     {form.formState.errors.password && <FormMessage>{form.formState.errors.password.message}</FormMessage>}
                   </FormItem>
@@ -83,7 +101,7 @@ export default function Register() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input type="password" {...field} placeholder="Confirmar senha"></Input>
+                      <Input type="password" {...field} maxLength={20} placeholder="Confirmar senha"></Input>
                     </FormControl>
                     {form.formState.errors.confirmPassword && <FormMessage>{form.formState.errors.confirmPassword.message}</FormMessage>}
                   </FormItem>
