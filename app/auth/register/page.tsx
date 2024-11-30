@@ -2,26 +2,20 @@ import { CupCakeIcon } from "@/components/svgs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 
-export default function Home() {
+export default function Register() {
   return (
     <div className="flex items-center justify-center h-screen flex-col space-y-5">
-      <CupCakeIcon className="text-9xl" />
+      <CupCakeIcon className="text-9xl"/>
       <Card>
         <CardContent className="space-y-3">
-          <Input type="email" placeholder="Login"></Input>
+          <Input placeholder="Nome"></Input>
+          <Input type="email" placeholder="E-mail"></Input>
           <Input type="password" placeholder="Senha"></Input>
-          <Button className="w-full">Logar</Button>
-          <Button className="w-full">Entrar sem cadastro</Button>
+          <Input type="password" placeholder="Confirmar senha"></Input>
         </CardContent>
         <CardFooter className="flex-col space-y-3">
-          <Button className="w-full" asChild variant="secondary">
-            <Link href="/auth/register">
-              Cadastro
-            </Link>
-          </Button>
-          <Button className="w-full" variant="secondary">Area Funcionario</Button>
+          <Button className="w-full" variant="secondary">Cadastrar</Button>
         </CardFooter>
       </Card>
     </div>

@@ -1,0 +1,1 @@
+export {default as CupCakeIcon} from './CupCakeIcon.svg';
