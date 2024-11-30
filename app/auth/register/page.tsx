@@ -6,6 +6,8 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod"
 
@@ -108,7 +110,12 @@ export default function Register() {
                 )}
               />
             </CardContent>
-            <CardFooter className="flex-col space-y-3">
+            <CardFooter className="space-x-2">
+              <Button variant="outline" size="icon" asChild>
+                <Link href="/">
+                <ArrowLeft/>
+                </Link>
+              </Button>
               <Button type="submit" className="w-full">Cadastrar</Button>
             </CardFooter>
           </form>
