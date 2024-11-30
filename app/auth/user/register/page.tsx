@@ -17,22 +17,24 @@ const minLenghtMessage = (lenght: number) => `Esse campo precisa ter no minimo $
 /** @todo fix ponctuation */
 
 const formSchema = z.object({
-  username: z.string({message: requiredFieldMessage}).min(4, minLenghtMessage(4)).max(40),
-  email: z.string({message: requiredFieldMessage}).email({message:"Esse campo precisa ser um email valido!"}),
-  password: z.string({message: requiredFieldMessage}).min(6, minLenghtMessage(6)).regex(
-    /^(?=(.*[A-Z]){1,}).{1,}$/g, 
+  username: z.string({ message: requiredFieldMessage }).min(4, minLenghtMessage(4)).max(40),
+  email: z.string({ message: requiredFieldMessage }).email({ message: "Esse campo precisa ser um email valido!" }),
+  password: z.string({ message: requiredFieldMessage }).min(6, minLenghtMessage(6)).regex(
+    /^(?=(.*[A-Z]){1,}).{1,}$/g,
     "Senha precisa de no mínimo 1 caractere maiusculo!"
   ).regex(
     /^(?=(.*[!@#$%^&*()\-__+.]){1,}).{1,}$/g,
     "Senha precisa de no mínimo 1 caractere especial!"
   ).max(20),
-  confirmPassword: z.string({message: requiredFieldMessage}).max(20),
+  confirmPassword: z.string({ message: requiredFieldMessage }).max(20),
 }).refine((data) => data.password === data.confirmPassword && data.confirmPassword.length !== 0, {
-    message: "As senhas não são iguais!",
-    path: ["confirmPassword"], // path of error
-  });
+  message: "As senhas não são iguais!",
+  path: ["confirmPassword"], // path of error
+});
 
 type FormFields = z.infer<typeof formSchema>
+
+/** @todo fix page size on mobile */
 
 export default function Register() {
   const form = useForm<FormFields>({
@@ -113,7 +115,7 @@ export default function Register() {
             <CardFooter className="space-x-2">
               <Button variant="outline" size="icon" asChild>
                 <Link href="/">
-                <ArrowLeft/>
+                  <ArrowLeft />
                 </Link>
               </Button>
               <Button type="submit" className="w-full">Cadastrar</Button>

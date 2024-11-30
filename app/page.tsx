@@ -17,11 +17,15 @@ export default function Home() {
         </CardContent>
         <CardFooter className="flex-col space-y-3">
           <Button className="w-full" asChild variant="secondary">
-            <Link href="/auth/register">
+            <Link href="/auth/user/register">
               Cadastro
             </Link>
           </Button>
-          <Button className="w-full" variant="secondary">Area Funcionario</Button>
+          <Button className="w-full" variant="secondary">
+            <Link href="/auth/employee">
+              Area Funcionario
+            </Link>
+          </Button>
         </CardFooter>
       </Card>
     </div>
