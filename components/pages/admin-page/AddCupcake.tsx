@@ -1,5 +1,6 @@
 "use client"
 
+import { createCupcake } from "@/actions/cupcakes.actions";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ const formSchema = z.object({
     cupcakeDescription: z.string({ message: requiredFieldMessage }).min(5, minLenghtMessage(5)),
     cupcakeNutritionalValue: z.string({ message: requiredFieldMessage }).min(5, minLenghtMessage(5)),
     cupcakeIngredients: z.string({ message: requiredFieldMessage }).min(5, minLenghtMessage(5)),
+    cupcakePrice: z.string({ message: requiredFieldMessage }).min(2, minLenghtMessage(2)),
     cupcakeImage: z.any()
 });
 
@@ -40,11 +42,11 @@ export default function AddCupcake() {
     const cupcakeImage = form.watch('cupcakeImage');
 
     useEffect(() => {
-        console.log(cupcakeImage);
+        console.log(cupcakeImage[0]);
     }, [cupcakeImage])
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values);
+        await createCupcake(values.cupcakeName, values.cupcakeDescription, values.cupcakeNutritionalValue, values.cupcakeIngredients, values.cupcakeImage[0], values.cupcakePrice);
     }
 
     return (
@@ -98,6 +100,18 @@ export default function AddCupcake() {
                                         <Input type="text" {...field} maxLength={300} placeholder="Ingredientes do cupcake"></Input>
                                     </FormControl>
                                     {form.formState.errors.cupcakeIngredients && <FormMessage>{form.formState.errors.cupcakeIngredients.message}</FormMessage>}
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="cupcakePrice"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <Input type="text" {...field} maxLength={300} placeholder="Preço do cupcake"></Input>
+                                    </FormControl>
+                                    {form.formState.errors.cupcakePrice && <FormMessage>{form.formState.errors.cupcakePrice.message}</FormMessage>}
                                 </FormItem>
                             )}
                         />

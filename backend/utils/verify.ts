@@ -1,6 +1,6 @@
 
 
-export function verifyValuesAreString(values: string[]) {
+export function verifyValuesAreString(values: string[] | null[]) {
     for(const value of values) {
         if(typeof value !== 'string') {
             return false;
