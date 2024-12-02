@@ -7,6 +7,8 @@ import AddCupcake from "./AddCupcake"
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
+import AddKey from "./AddKey";
+import ManageKeys from "./manage-keys/ManageKeys";
 
 export default function AdminPage() {
     const auth = useAuth();
@@ -37,21 +39,36 @@ export default function AdminPage() {
                             </DialogHeader>
                         </DialogContent>
                     </Dialog>
-                    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+                    <Dialog>
                         <DialogTrigger asChild>
                             <Button className="w-full"> Criar uma chave de criação de conta </Button>
                         </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
-                                <DialogTitle>Adicionar um Cupcake</DialogTitle>
+                                <DialogTitle>Criar uma chave</DialogTitle>
                                 <DialogDescription>
-                                    Preencha os campos para adicionar o cupcake.
+                                    Selecione o cargo desejado, e depois aperte o botão para criar uma nova chave
                                 </DialogDescription>
-                                <AddCupcake triggerSuccessOrFail={setOpenDialog} />
+                                <AddKey />
+                            </DialogHeader>
+                        </DialogContent>
+                    </Dialog>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button className="w-full">Gerenciar chaves</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Gerenciar chaves</DialogTitle>
+                                <DialogDescription>
+                                   placeholdergoogobolder 
+                                </DialogDescription>
+                                <ManageKeys/>
                             </DialogHeader>
                         </DialogContent>
                     </Dialog>
                 </CardContent>
+
                 <CardFooter>
                     <Button onClick={onLogoutPress} className="w-full" variant="outline"> Deslogar </Button>
                 </CardFooter>

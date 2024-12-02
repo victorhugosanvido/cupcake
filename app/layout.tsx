@@ -25,6 +25,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="en">
       <body
@@ -33,7 +34,7 @@ export default function RootLayout({
         <SessionProvider>
           {children}
         </SessionProvider>
-        <Toaster richColors toastOptions={{}}/>
+        <Toaster richColors toastOptions={{}} />
       </body>
     </html>
   );

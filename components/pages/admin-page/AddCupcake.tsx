@@ -2,7 +2,7 @@
 
 import { createCupcake } from "@/actions/cupcakes.actions";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -20,7 +20,7 @@ const formSchema = z.object({
     cupcakeDescription: z.string({ message: requiredFieldMessage }).min(5, minLenghtMessage(5)),
     cupcakeNutritionalValue: z.string({ message: requiredFieldMessage }).min(5, minLenghtMessage(5)),
     cupcakeIngredients: z.string({ message: requiredFieldMessage }).min(5, minLenghtMessage(5)),
-    cupcakePrice: z.coerce.number().min(2, minLenghtMessage(2)).multipleOf(0.01),
+    cupcakePrice: z.coerce.number().min(1, requiredFieldMessage).multipleOf(0.01),
     cupcakeImage: z.any()
 });
 

@@ -48,8 +48,17 @@ export class EmployeesDAO {
 
         await this.changeKeyStatusToUsed(key);
 
-        const sql = `insert into EMPLOYEE (name, email, activation_key) values ($1, $2, $3)`
+        const sql = `insert into EMPLOYEE (name, email, activation_key) values ($1, $2, $3)`;
         await this.runQuery(sql, [name, email, key]);
+    }
+
+    async createNewKey(key: string, role: string) {
+        const sql = `insert into KEYS (activation_key, role, is_key_used, key_status) values ($1, $2, false, true)`;
+        await this.runQuery(sql, [key, role]);
+    }
+
+    async getKeys() {
+        return await this.runQuery('select * from keys', []);
     }
 
     async changeKeyStatusToUsed(key: string) {
