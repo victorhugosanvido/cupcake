@@ -1,14 +1,22 @@
 "use client"
 
-import { CupCakeIcon } from "@/components/svgs";
+import { createNewUser } from "@/actions/employee.actions";
+import { ChefIcon } from "@/components/svgs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { auth } from "@/configs/firebase";
+import { useAuth } from "@/hooks/useAuth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
+import { AxiosError } from "axios";
+import { FirebaseError } from "firebase/app";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod"
 
 const requiredFieldMessage = 'Esse campo é obrigatorio!'
@@ -36,7 +44,11 @@ type FormFields = z.infer<typeof formSchema>
 
 /** @todo fix page size on mobile */
 
-export default function RegisterUser() {
+export default function RegisterEmployee() {
+  const router = useRouter()
+  const {signIn, setUserInformation} = useAuth();
+  const { keyId } = useParams<{ 'keyId': string; }>()
+
   const form = useForm<FormFields>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,15 +59,42 @@ export default function RegisterUser() {
     }
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const { email, name, role }= await createNewUser(keyId, values.username, values.email);
+      const res = await createUserWithEmailAndPassword(auth, values.email, values.password);
+
+      signIn(await res.user.getIdToken());
+      setUserInformation({
+        email,
+        name,
+        role 
+      });
+      
+      router.push('/home');
+    } catch (error: unknown) {
+      if (error instanceof FirebaseError) {
+        if (error.code == "auth/email-already-in-use") {
+          return toast.error('Uma conta com esse email já existe.', {
+            position: 'top-center'
+          });
+        }
+      }
+
+      if(error instanceof AxiosError) {
+        if(error.response?.data.statusMessage === 'Activation key is invalid.') {
+            return toast.error('Key invalida!', {
+                position: 'top-center'
+            });
+        }
+        console.log(error.response?.data);
+      }
+    }
   }
 
   return (
     <div className="flex items-center justify-center h-screen flex-col space-y-5">
-      <CupCakeIcon className="text-9xl" />
+      <ChefIcon className="text-9xl" />
       <Card>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -114,11 +153,14 @@ export default function RegisterUser() {
             </CardContent>
             <CardFooter className="space-x-2">
               <Button variant="outline" size="icon" asChild>
-                <Link href="/">
+                <Link href="/auth/employee/insert-key">
                   <ArrowLeft />
                 </Link>
               </Button>
-              <Button type="submit" className="w-full">Cadastrar</Button>
+              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? (<Loader2 className="animate-spin"/>) : null}
+                Cadastrar
+              </Button>
             </CardFooter>
           </form>
         </Form>

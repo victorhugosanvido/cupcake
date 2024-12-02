@@ -1,14 +1,21 @@
 "use client"
 
+import { getEmployee } from "@/actions/employee.actions";
 import { ChefIcon } from "@/components/svgs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { auth } from "@/configs/firebase";
+import { useAuth } from "@/hooks/useAuth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
+import { FirebaseError } from "firebase/app";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod"
 
 const requiredFieldMessage = 'Esse campo é obrigatorio!'
@@ -31,7 +38,10 @@ type FormFields = z.infer<typeof formSchema>
 
 /** @todo fix page size on mobile */
 
-export default function Register() {
+export default function AuthEmployee() {
+    const { signIn, setUserInformation } = useAuth();
+    const router = useRouter()
+
     const form = useForm<FormFields>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -40,10 +50,30 @@ export default function Register() {
         }
     });
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log(values)
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+            const res = await signInWithEmailAndPassword(auth, values.email, values.password);
+            const {email, name, role} = await getEmployee(values.email);
+            signIn(await res.user.getIdToken());
+            setUserInformation({
+                email,
+                name,
+                role
+            });
+
+
+            router.push('/home');
+        } catch (error) {
+            if (error instanceof FirebaseError) {
+                if (error.code == "auth/invalid-credential") {
+                    return toast.error('Credenciais invalidas.', {
+                        position: 'top-center'
+                    });
+                }
+            }
+        }
+
+
     }
 
     return (
@@ -52,8 +82,6 @@ export default function Register() {
             <Card>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)}>
-
-
                         <CardContent className="space-y-3">
                             <FormField
                                 control={form.control}
@@ -79,7 +107,10 @@ export default function Register() {
                                     </FormItem>
                                 )}
                             />
-                            <Button type="submit" className="w-full">Logar</Button>
+                            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                                {form.formState.isSubmitting ? (<Loader2 className="animate-spin" />) : null}
+                                Logar
+                            </Button>
                         </CardContent>
                         <CardFooter className="flex-col space-y-3">
                             <div className="flex w-full space-x-3">
@@ -89,7 +120,7 @@ export default function Register() {
                                     </Link>
                                 </Button>
                                 <Button className="w-full" variant="secondary" asChild>
-                                    <Link href="/auth/employee/register">
+                                    <Link href="/auth/employee/insert-key">
                                         Cadastrar
                                     </Link>
                                 </Button>

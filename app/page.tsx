@@ -13,7 +13,11 @@ export default function Home() {
           <Input type="email" placeholder="Login"></Input>
           <Input type="password" placeholder="Senha"></Input>
           <Button className="w-full">Logar</Button>
-          <Button className="w-full">Entrar sem cadastro</Button>
+          <Button className="w-full" asChild>
+            <Link href="/home">
+              Entrar sem cadastro
+            </Link>
+          </Button>
         </CardContent>
         <CardFooter className="flex-col space-y-3">
           <Button className="w-full" asChild variant="secondary">

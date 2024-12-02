@@ -1,28 +1,33 @@
 "use client"
 
+import { verifyActivationKeyIsValid } from "@/actions/employee.actions";
 import { ChefIcon } from "@/components/svgs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod"
 
 
 /** @todo fix ponctuation */
 
 const formSchema = z.object({
-    key: z.string(),
+    key: z.string().min(5, 'A chave deve ter no minimo 5 caracteres!').max(100),
 });
 
 type FormFields = z.infer<typeof formSchema>
 
 /** @todo fix page size on mobile */
 
-export default function Register() {
+export default function InsertKey() {
+    const router = useRouter()
+
     const form = useForm<FormFields>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -30,10 +35,17 @@ export default function Register() {
         }
     });
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log(values)
+
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        const { isKeyValid } = await verifyActivationKeyIsValid(values.key);
+        if (!isKeyValid) {
+            return toast.error('Key invalida!', {
+                position: 'top-center'
+            });
+        }
+
+        router.push(`/auth/employee/register/${values.key}`);
+
     }
 
     return (
@@ -53,7 +65,7 @@ export default function Register() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <Input type="password" {...field} placeholder="Key"></Input>
+                                            <Input type="text" maxLength={100} {...field} placeholder="Key"></Input>
                                         </FormControl>
                                         {form.formState.errors.key && <FormMessage>{form.formState.errors.key.message}</FormMessage>}
                                     </FormItem>
@@ -67,8 +79,9 @@ export default function Register() {
                                         <ArrowLeft />
                                     </Link>
                                 </Button>
-                                <Button className="w-full">
-                                   Começar cadastro 
+                                <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                                    {form.formState.isSubmitting ? (<Loader2 className="animate-spin"/>) : null}
+                                    Começar cadastro
                                 </Button>
                             </div>
                         </CardFooter>
