@@ -75,7 +75,7 @@ export default function InsertKey() {
                         <CardFooter className="flex-col space-y-3">
                             <div className="flex w-full space-x-3">
                                 <Button variant="outline" size="icon" asChild>
-                                    <Link href="/">
+                                    <Link href="/auth/employee">
                                         <ArrowLeft />
                                     </Link>
                                 </Button>

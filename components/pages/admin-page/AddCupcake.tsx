@@ -2,12 +2,12 @@
 
 import { createCupcake } from "@/actions/cupcakes.actions";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod"
 
 const requiredFieldMessage = 'Esse campo é obrigatorio!'
@@ -20,7 +20,7 @@ const formSchema = z.object({
     cupcakeDescription: z.string({ message: requiredFieldMessage }).min(5, minLenghtMessage(5)),
     cupcakeNutritionalValue: z.string({ message: requiredFieldMessage }).min(5, minLenghtMessage(5)),
     cupcakeIngredients: z.string({ message: requiredFieldMessage }).min(5, minLenghtMessage(5)),
-    cupcakePrice: z.string({ message: requiredFieldMessage }).min(2, minLenghtMessage(2)),
+    cupcakePrice: z.coerce.number().min(2, minLenghtMessage(2)).multipleOf(0.01),
     cupcakeImage: z.any()
 });
 
@@ -28,25 +28,40 @@ type FormFields = z.infer<typeof formSchema>
 
 /** @todo fix page size on mobile */
 
-export default function AddCupcake() {
+
+type AddCupcakeProps = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    triggerSuccessOrFail?: any;
+}
+
+export default function AddCupcake({ triggerSuccessOrFail }: AddCupcakeProps) {
+
     const form = useForm<FormFields>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             cupcakeName: "",
             cupcakeDescription: "",
             cupcakeNutritionalValue: "",
-            cupcakeIngredients: ""
+            cupcakeIngredients: "",
+            cupcakePrice: 0
         }
     });
 
     const cupcakeImage = form.watch('cupcakeImage');
 
-    useEffect(() => {
-        console.log(cupcakeImage[0]);
-    }, [cupcakeImage])
-
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        await createCupcake(values.cupcakeName, values.cupcakeDescription, values.cupcakeNutritionalValue, values.cupcakeIngredients, values.cupcakeImage[0], values.cupcakePrice);
+        try {
+            await createCupcake(values.cupcakeName, values.cupcakeDescription, values.cupcakeNutritionalValue, values.cupcakeIngredients, values.cupcakeImage[0], values.cupcakePrice);
+            if (triggerSuccessOrFail !== undefined) {
+                triggerSuccessOrFail(false);
+                toast.success('Cupcake criado com sucesso!', {
+                    position: 'top-center'
+                })
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
     }
 
     return (
@@ -109,7 +124,7 @@ export default function AddCupcake() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input type="text" {...field} maxLength={300} placeholder="Preço do cupcake"></Input>
+                                        <Input type="number" {...field} maxLength={10} placeholder="Preço do cupcake"></Input>
                                     </FormControl>
                                     {form.formState.errors.cupcakePrice && <FormMessage>{form.formState.errors.cupcakePrice.message}</FormMessage>}
                                 </FormItem>
@@ -117,11 +132,11 @@ export default function AddCupcake() {
                         />
                         <div>
                             <input className="hidden" type="file" id="file" {...form.register('cupcakeImage')} accept="image/*"></input>
-                            <label className="border-gray-400 border border-dashed rounded p-2 text-sm text-gray-600 w-full" htmlFor="file"> 
-                                {cupcakeImage?.[0]?.name ?? 'Selecionar uma imagem para o cupcake'} 
+                            <label className="border-gray-400 border border-dashed rounded p-2 text-sm text-gray-600 w-full" htmlFor="file">
+                                {cupcakeImage?.[0]?.name ?? 'Selecionar uma imagem para o cupcake'}
                             </label>
                         </div>
-                        <div className="my-5"/>
+                        <div className="my-5" />
                         <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
                             {form.formState.isSubmitting ? (<Loader2 className="animate-spin" />) : null}
                             Criar cupcake
